@@ -43,6 +43,10 @@ class App
     @options.move = 0
   end
 
+  def board= board
+    @board = board
+  end
+
   # Parse options, check arguments, then process the command
   def run
     if parsed_options? && arguments_valid?
@@ -97,6 +101,7 @@ class App
     def play
       @options.move = @arguments[0]
       puts "you have dropped a chip in column " + @options.move
+      @board.show_matrix
     end
 
     def process_command
@@ -113,12 +118,41 @@ class App
       #  # TO DO - process each line
       #end
     end
+
 end
 
 
-# TO DO - Add your Modules, Classes, etc
+
+class Board
+
+  attr_accessor :matrix
+
+  def initialize
+    @matrix = [
+      [0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0]
+    ]
+  end
+
+  def show_matrix
+    @matrix.each do |inner|
+      inner.each do |n|
+        print "#{n} "
+      end
+      puts
+    end
+  end
+
+end
 
 
 # Create and run the application
 app = App.new(ARGV, STDIN)
+app.board = Board.new
 app.run
+
+
+
