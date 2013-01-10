@@ -30,7 +30,7 @@ class App
 
   VERSION = '0.0.1'
 
-  attr_reader :options
+  attr_accessor :options, :board
 
   def initialize(arguments, stdin)
     @arguments = arguments
@@ -73,7 +73,6 @@ class App
 
     def process_options
       #@options.verbose = false if @options.quiet
-
     end
 
     def arguments_valid?
@@ -101,6 +100,10 @@ class App
     def play
       @options.move = @arguments[0]
       puts "you have dropped a chip in column " + @options.move
+      move = @options.move.to_i
+      move -= 1
+      # TO DO - validate numeric, in range
+      @board.drop_piece(move.to_s)
       @board.show_matrix
     end
 
@@ -128,21 +131,34 @@ class Board
   attr_accessor :matrix
 
   def initialize
+    # this is upside down here
     @matrix = [
       [0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0],
+      [0,0,0,0,2,0,0],
       [0,0,0,0,0,0,0]
     ]
   end
 
   def show_matrix
-    @matrix.each do |inner|
+    @matrix.reverse.each do |inner|
       inner.each do |n|
         print "#{n} "
       end
       puts
+    end
+  end
+
+  # so the problem is that we need to persist this data since it will be lost when the script exits
+  def drop_piece(column=1)
+    @matrix.each do |inner|
+      if inner[column.to_i] == 1 || inner[column.to_i] == 2
+        puts 'seats taken'
+      else
+        inner[column.to_i] = 1
+        break
+      end
     end
   end
 
