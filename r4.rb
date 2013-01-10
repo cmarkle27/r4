@@ -4,7 +4,7 @@
 #   A cli connect-four game
 #
 # == Usage
-#   r4 -p [column]
+#   -p to start game
 #   For help use: r4 -h
 #
 # == Options
@@ -38,8 +38,6 @@ class App
 
     # Set defaults
     @options = OpenStruct.new
-    @options.verbose = false
-    @options.quiet = false
     @options.move = 0
   end
 
@@ -57,13 +55,21 @@ class App
     end
   end
 
+  def start
+    @board.show_matrix
+    puts "which column?"
+    STDOUT.flush
+    @options.move = gets.chomp
+    self.play
+  end
+
   protected
 
     def parsed_options?
       opts = OptionParser.new
       opts.on('-v', '--version')    { output_version ; exit 0 }
       opts.on('-h', '--help')       { output_help }
-      opts.on('-p', '--play')       { play }
+      opts.on('-p', '--play')       { start }
 
       opts.parse!(@arguments) rescue return false
 
@@ -98,13 +104,13 @@ class App
     end
 
     def play
-      @options.move = @arguments[0]
+      # @options.move = @arguments[0]
       puts "you have dropped a chip in column " + @options.move
       move = @options.move.to_i
       move -= 1
       # TO DO - validate numeric, in range
       @board.drop_piece(move.to_s)
-      @board.show_matrix
+      self.start
     end
 
     def process_command
@@ -133,10 +139,10 @@ class Board
   def initialize
     # this is upside down here
     @matrix = [
+      [0,0,2,1,2,0,0],
+      [0,0,1,0,2,0,0],
       [0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0],
-      [0,0,0,0,2,0,0],
       [0,0,0,0,0,0,0]
     ]
   end
@@ -153,9 +159,7 @@ class Board
   # so the problem is that we need to persist this data since it will be lost when the script exits
   def drop_piece(column=1)
     @matrix.each do |inner|
-      if inner[column.to_i] == 1 || inner[column.to_i] == 2
-        puts 'seats taken'
-      else
+      if inner[column.to_i] != 1 && inner[column.to_i] != 2
         inner[column.to_i] = 1
         break
       end
